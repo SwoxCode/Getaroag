@@ -1,0 +1,7 @@
+{
+  "name": "Getaroag",
+  "description": "Dakikalar içinde aracını kirala - Modern P2P araç kiralama platformu.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
