@@ -71,37 +71,30 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
   );
 
   const MapView = () => (
-    <div className="w-full h-full bg-[#dbeafe] relative overflow-hidden rounded-lg md:rounded-none group">
-        {/* Realistic Fallback Map Background Pattern */}
-        <div 
-            className="absolute inset-0 opacity-80 pointer-events-none"
-            style={{
-                backgroundImage: `
-                    radial-gradient(circle at 10% 20%, #e0e7ff 0%, transparent 20%),
-                    radial-gradient(circle at 90% 80%, #e0e7ff 0%, transparent 20%),
-                    linear-gradient(#cbd5e1 1px, transparent 1px),
-                    linear-gradient(90deg, #cbd5e1 1px, transparent 1px)
-                `,
-                backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
-            }}
-        ></div>
-        {/* Try Real Image again, if it loads it covers the pattern */}
-        <div 
-            className="absolute inset-0 opacity-100 pointer-events-none grayscale-[0.2]"
-            style={{
-                backgroundImage: 'url("https://upload.wikimedia.org/wikipedia/commons/e/ec/Istanbul_map.png")', 
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'contrast(1.1) brightness(1.05)',
-                mixBlendMode: 'multiply'
-            }}
-        ></div>
+    <div className="w-full h-full relative overflow-hidden bg-gray-100">
+        {/* 
+            LIVE MAP EMBED 
+            Using an iframe guarantees the map tiles load directly from OSM servers.
+            pointer-events-none is used so the map acts as a background and doesn't steal clicks from Pins.
+        */}
+        <iframe
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            scrolling="no"
+            marginHeight={0}
+            marginWidth={0}
+            src="https://www.openstreetmap.org/export/embed.html?bbox=28.9388%2C40.9956%2C29.0854%2C41.0766&amp;layer=mapnik"
+            className="absolute inset-0 w-full h-full pointer-events-none opacity-90 grayscale-[0.1]"
+            style={{ border: 0 }}
+            title="Istanbul Map"
+        ></iframe>
         
         {/* Pins Layer */}
         {cars.map((car, idx) => {
             const isSelected = selectedCarId === car.id;
             
-            // Simulating realistic distribution
+            // Simulating realistic distribution on the map
             const topPos = 40 + (idx * 15) * (idx % 2 === 0 ? 1 : -0.8);
             const leftPos = 50 + (idx * 12) * (idx % 2 === 0 ? -1 : 0.9);
 
@@ -110,13 +103,13 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
                     key={car.id}
                     className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${isSelected ? 'z-50' : 'z-10 hover:z-40'}`}
                     style={{
-                        top: `${Math.max(10, Math.min(90, topPos))}%`, 
+                        top: `${Math.max(20, Math.min(80, topPos))}%`, 
                         left: `${Math.max(10, Math.min(90, leftPos))}%`
                     }}
                 >
-                    {/* The Popup Bubble (Appears ABOVE the pin) */}
+                    {/* The Popup Bubble (Appears ABOVE the pin when selected) */}
                     {isSelected && (
-                         <div className="absolute bottom-[calc(100%+12px)] left-1/2 transform -translate-x-1/2 w-64 md:w-72 animate-fade-in-up origin-bottom z-50">
+                         <div className="absolute bottom-[calc(100%+16px)] left-1/2 transform -translate-x-1/2 w-64 md:w-72 animate-fade-in-up origin-bottom z-50">
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl shadow-black/20 p-0 overflow-hidden border border-gray-100 dark:border-gray-700">
                                  <div className="relative h-32">
                                      <img src={car.images[0]} className="w-full h-full object-cover" alt="Car" />
@@ -142,88 +135,95 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
                                      </div>
                                  </div>
                             </div>
-                            {/* Triangle Arrow */}
-                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-800 rotate-45 shadow-lg border-r border-b border-gray-100 dark:border-gray-700"></div>
-                         </div>
+                        </div>
                     )}
 
-                    {/* The Pin (Price Pill) */}
+                    {/* The Pin - Matches Screenshot Exact Style */}
+                    {/* Unselected: White BG, Purple Border, Black Text */}
+                    {/* Selected: Purple BG, Purple Border, White Text */}
                     <button
                         onClick={(e) => { e.stopPropagation(); setSelectedCarId(car.id); }}
                         className={`
-                            flex items-center justify-center px-3 py-1.5 rounded-full font-bold shadow-md transition-transform
+                            relative flex items-center justify-center px-4 py-2 rounded-2xl font-bold shadow-lg transition-transform border-[2px]
                             ${isSelected 
-                                ? 'bg-brand-600 text-white scale-110 shadow-brand-500/40 ring-4 ring-white/30 dark:ring-black/30' 
-                                : 'bg-white text-gray-900 hover:scale-105 hover:bg-gray-50 dark:bg-gray-800 dark:text-white'}
+                                ? 'bg-brand-600 text-white border-brand-600 scale-110 z-50' 
+                                : 'bg-white text-gray-900 border-brand-600 hover:scale-105 z-10'}
                         `}
                     >
-                        <span className="text-xs mr-0.5">₺</span>
-                        <span className="text-sm">{car.pricePerDay}</span>
+                        <span className="text-xs mr-0.5 font-normal">₺</span>
+                        <span className="text-sm font-bold">{car.pricePerDay}</span>
+                        
+                        {/* Triangle Pointer */}
+                        <div className={`absolute -bottom-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 rotate-45 border-r border-b 
+                            ${isSelected 
+                                ? 'bg-brand-600 border-brand-600' 
+                                : 'bg-white border-brand-600'}
+                        `}></div>
                     </button>
-                    {!isSelected && <div className="w-2 h-2 bg-white dark:bg-gray-800 absolute -bottom-1 left-1/2 transform -translate-x-1/2 rotate-45"></div>}
                 </div>
             );
         })}
-
-        {/* Floating Map Controls */}
-        <div className="absolute bottom-6 right-4 flex flex-col gap-2 z-30">
-             <button className="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-200 hover:bg-gray-50 active:scale-95 transition-transform">
-                 <i className="fas fa-crosshairs"></i>
-             </button>
-        </div>
         
-        <div className="absolute bottom-1 left-1 pointer-events-none opacity-70 bg-white/50 px-1 rounded">
-             <span className="text-[10px] text-gray-500 font-sans">Google</span>
+        {/* Map Attribution */}
+        <div className="absolute bottom-1 right-1 pointer-events-none opacity-80 bg-white/70 px-1 rounded z-0">
+             <span className="text-[10px] text-gray-600 font-sans">© OpenStreetMap</span>
         </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] md:h-[calc(100vh-80px)] relative">
-        {/* Filters Bar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 md:px-6 flex gap-2 overflow-x-auto no-scrollbar shrink-0 z-20">
-            <div className="min-w-[120px]">
-                <Select 
-                    className="text-sm py-1.5"
-                    options={[
-                        { value: '', label: 'Vites Tipi' }, 
-                        { value: Transmission.AUTOMATIC, label: 'Otomatik' }, 
-                        { value: Transmission.MANUAL, label: 'Manuel' }
-                    ]} 
-                    onChange={(e) => handleFilterChange('transmission', e.target.value)}
-                />
+    <div className="flex flex-col h-[calc(100vh-64px-57px)] md:h-[calc(100vh-80px)] relative">
+        
+        {/* Filters Bar & Header */}
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 md:px-6 flex items-center justify-between gap-2 z-20 sticky top-0">
+            {/* Filter Scroll Area */}
+            <div className="flex gap-2 overflow-x-auto no-scrollbar flex-1 pr-12">
+                <div className="min-w-[110px]">
+                    <Select 
+                        className="text-xs py-1.5 h-9"
+                        options={[
+                            { value: '', label: 'Fiyat' }, 
+                            { value: 'asc', label: 'Artan' }, 
+                            { value: 'desc', label: 'Azalan' }
+                        ]} 
+                        onChange={(e) => handleFilterChange('minPrice', Number(e.target.value))}
+                    />
+                </div>
+                <div className="min-w-[120px]">
+                    <Select 
+                        className="text-xs py-1.5 h-9"
+                        options={[
+                            { value: '', label: 'Araç Tipi' }, 
+                            { value: 'sedan', label: 'Sedan' }, 
+                            { value: 'suv', label: 'SUV' }
+                        ]} 
+                        onChange={(e) => handleFilterChange('transmission', e.target.value)}
+                    />
+                </div>
+                {/* Filter Modal Trigger */}
+                <button 
+                    onClick={() => setShowFilterModal(true)}
+                    className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shrink-0"
+                >
+                    <i className="fas fa-sliders-h"></i>
+                </button>
             </div>
-            <div className="min-w-[120px]">
-                <Select 
-                    className="text-sm py-1.5"
-                    options={[
-                        { value: '', label: 'Yakıt' }, 
-                        { value: FuelType.GASOLINE, label: 'Benzin' }, 
-                        { value: FuelType.DIESEL, label: 'Dizel' },
-                        { value: FuelType.ELECTRIC, label: 'Elektrik' }
-                    ]} 
-                    onChange={(e) => handleFilterChange('fuelType', e.target.value)}
-                />
-            </div>
-            <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={() => setShowFilterModal(true)}>
-                <i className="fas fa-sliders-h mr-2"></i> Tüm Filtreler
-            </Button>
-        </div>
 
-        {/* Mobile View Toggle - MOVED TO TOP RIGHT */}
-        <div className="md:hidden absolute top-16 right-4 z-40 bg-white dark:bg-gray-800 rounded-full shadow-lg p-1 flex border border-gray-200 dark:border-gray-700">
-            <button 
-                onClick={() => setViewMode('list')}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${viewMode === 'list' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'text-gray-400'}`}
-            >
-                <i className="fas fa-list"></i>
-            </button>
-            <button 
-                onClick={() => setViewMode('map')}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${viewMode === 'map' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'text-gray-400'}`}
-            >
-                <i className="fas fa-map-marked-alt"></i>
-            </button>
+            {/* List / Map Toggle (Top Right) */}
+            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 shrink-0 ml-2">
+                <button 
+                    onClick={() => setViewMode('list')}
+                    className={`w-8 h-7 rounded-md flex items-center justify-center text-xs transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-600 text-brand-600 shadow-sm font-bold' : 'text-gray-500'}`}
+                >
+                    <i className="fas fa-list"></i>
+                </button>
+                <button 
+                    onClick={() => setViewMode('map')}
+                    className={`w-8 h-7 rounded-md flex items-center justify-center text-xs transition-all ${viewMode === 'map' ? 'bg-white dark:bg-gray-600 text-brand-600 shadow-sm font-bold' : 'text-gray-500'}`}
+                >
+                    <i className="fas fa-map"></i>
+                </button>
+            </div>
         </div>
 
         {/* Main Split Layout */}
@@ -241,7 +241,7 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
                 )}
             </div>
 
-            {/* Map View */}
+            {/* Map View - Always Rendered but controlled via CSS for Mobile */}
             <div className={`absolute inset-0 z-10 md:static md:w-1/2 lg:w-3/5 md:block ${viewMode === 'list' ? 'hidden md:block' : 'block'}`}>
                 <MapView />
             </div>
@@ -249,7 +249,7 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
 
         {/* Full Screen Filter Modal */}
         {showFilterModal && (
-            <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex justify-end">
+            <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex justify-end">
                 <div className="w-full md:w-96 bg-white dark:bg-gray-900 h-full p-6 shadow-2xl overflow-y-auto animate-fade-in-right">
                     <div className="flex justify-between items-center mb-8">
                         <h2 className="text-2xl font-bold dark:text-white">Filtrele</h2>
@@ -257,37 +257,16 @@ export const Search: React.FC<SearchProps> = ({ initialCity, onCarClick }) => {
                             <i className="fas fa-times"></i>
                         </button>
                     </div>
-
                     <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Fiyat Aralığı (Günlük)</label>
-                            <div className="flex items-center gap-4">
-                                <Input type="number" placeholder="Min" onChange={(e) => handleFilterChange('minPrice', Number(e.target.value))} />
-                                <span className="text-gray-400">-</span>
-                                <Input type="number" placeholder="Max" onChange={(e) => handleFilterChange('maxPrice', Number(e.target.value))} />
-                            </div>
-                        </div>
-
-                        <div>
+                         <div>
                              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Sıralama</label>
                              <Select options={[
                                  { value: 'recommended', label: 'Önerilen' },
                                  { value: 'price_asc', label: 'Fiyat (Önce en düşük)' },
                                  { value: 'price_desc', label: 'Fiyat (Önce en yüksek)' },
-                                 { value: 'rating', label: 'Puan (Yüksekten düşüğe)' },
                              ]} />
                         </div>
-
-                         <div>
-                             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Araç Tipi</label>
-                             <div className="flex flex-wrap gap-2">
-                                 {['Sedan', 'Hatchback', 'SUV', 'Van'].map(t => (
-                                     <button key={t} className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-brand-500 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300">{t}</button>
-                                 ))}
-                             </div>
-                        </div>
                     </div>
-
                     <div className="mt-12 pt-6 border-t border-gray-100 dark:border-gray-800">
                         <Button fullWidth size="lg" onClick={() => setShowFilterModal(false)}>Sonuçları Göster</Button>
                     </div>

@@ -67,32 +67,32 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 pb-24 md:pb-0 overflow-x-hidden">
+      <main className="flex-1 pb-[80px] md:pb-0 overflow-x-hidden">
         {children}
       </main>
 
       {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[76px] bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50 rounded-t-2xl">
-        <div className="relative flex justify-between items-center px-6 h-full pb-1">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[64px] bg-white dark:bg-gray-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 border-t border-gray-100 dark:border-gray-700">
+        <div className="relative flex justify-between items-center px-2 h-full">
             
             {/* Left Group */}
             <NavItem page="home" icon="fas fa-home" label="Akış" />
             <NavItem page="search" icon="fas fa-search" label="Ara" />
 
-            {/* Center Spacer */}
-            <div className="w-20 h-full flex items-end justify-center pointer-events-none"></div>
+            {/* Center Spacer for Floating Button */}
+            <div className="w-14 h-full pointer-events-none"></div>
 
             {/* Right Group */}
             <NavItem page="bookings" icon="far fa-heart" label="Favoriler" />
             <NavItem page="profile" icon="far fa-user" label="Profil" />
 
-            {/* Floating Action Button - Enlarged & Lowered */}
-            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+            {/* Floating Action Button (The Plus) - Smaller and positioned to avoid overlap */}
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
                 <button 
                   onClick={() => onNavigate('list-car')}
-                  className="w-[72px] h-[72px] bg-brand-600 hover:bg-brand-700 rounded-full text-white shadow-xl shadow-brand-500/40 flex items-center justify-center transition-transform active:scale-95 border-[6px] border-gray-50 dark:border-gray-900"
+                  className="w-12 h-12 bg-brand-600 hover:bg-brand-700 rounded-full text-white shadow-lg shadow-brand-500/40 flex items-center justify-center transition-transform active:scale-95 border-[3px] border-white dark:border-gray-800"
                 >
-                   <i className="fas fa-plus text-3xl"></i>
+                   <i className="fas fa-plus text-xl"></i>
                 </button>
             </div>
         </div>
